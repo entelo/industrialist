@@ -1,26 +1,63 @@
 # Industrialist
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/industrialist`. To experiment with that code, run `bin/console` for an interactive prompt.
+Industrialist manufactures factories that build self-registered classes.
 
-TODO: Delete this and the text above, and describe your gem
+## Background
 
-## Installation
-
-Add this line to your application's Gemfile:
+At the heart of your typical Gang of Four factory method is a case statement:
 
 ```ruby
-gem 'industrialist'
+class Sedan; end
+class Coupe; end
+class Convertible; end
+
+class AutomobileFactory
+  def self.build(automobile_type)
+    automobile_klass(automobile_type)&.new
+  end
+
+  def self.automobile_klass(automobile_type)
+    case automobile_type
+    when :sedan
+      Sedan
+    when :coupe
+      Coupe
+    when :convertible
+      Convertible
+    end
+  end
+end
+
+AutomobileFactory.build(:sedan)
 ```
 
-And then execute:
+The Ruby way to do this is with a Hash:
 
-    $ bundle
+```ruby
+class Sedan; end
+class Coupe; end
+class Convertible; end
 
-Or install it yourself as:
+class AutomobileFactory
+  AUTOMOBILE_KLASSES = {
+    sedan: Sedan,
+    coupe: Coupe,
+    convertible: Convertible
+  }.freeze
 
-    $ gem install industrialist
+  def self.build(automobile_type)
+    AUTOMOBILE_KLASSES[automobile_type]&.new
+  end
+end
+
+AutomobileFactory.build(:coupe)
+```
+
+But, both of these approaches require you to maintain your factory by hand. In order to extend these factories, you must modify them, which violates the Open/Closed Principle.
 
 ## Usage
+
+Industrialist creates factories for you. Just include the FactoryRegistrar module in a base class and give the factory a name. Industrialist also allows children of the base class to register themselves with the factory by specifying their corresponding key. Like this:
 
 ```ruby
 class Automobile
@@ -42,6 +79,22 @@ end
 
 AutomobileFactory.build(:convertible)
 ```
+
+## Installation
+
+Add this line to your application's Gemfile:
+
+```ruby
+gem 'industrialist'
+```
+
+And then execute:
+
+    $ bundle
+
+Or install it yourself as:
+
+    $ gem install industrialist
 
 ## Development
 
