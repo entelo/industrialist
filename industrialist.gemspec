@@ -9,7 +9,7 @@ Gem::Specification.new do |spec|
   spec.authors       = ["Alan Ridlehoover", "Fito von Zastrow"]
   spec.email         = ["dev@entelo.com"]
 
-  spec.summary       = "Industrialist provides dynamic factory registration"
+  spec.summary       = "Industrialist manufactures factories that build self-registered classes."
   spec.homepage      = "https://github.com/entelo/industrialist"
   spec.license       = "MIT"
 
