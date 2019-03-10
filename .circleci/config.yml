@@ -42,21 +42,17 @@ jobs:
 
       # run tests!
       - run:
-          name: run tests
+          name: run tests and report results to code climate
           command: |
             curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
             chmod +x ./cc-test-reporter
 
             mkdir /tmp/test-results
-            TEST_FILES="$(circleci tests glob "spec/**/*_spec.rb" | \
-              circleci tests split --split-by=timings)"
 
             bundle exec rspec \
-              --format progress \
+            dddddd  --format progress \
               --format RspecJunitFormatter \
-              --out /tmp/test-results/rspec.xml \
-              --format progress \
-              $TEST_FILES
+              --out /tmp/test-results/rspec.xml
 
             ./cc-test-reporter after-build -t simplecov
 
