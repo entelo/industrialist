@@ -1,3 +1,4 @@
+[![Gem Version](https://badge.fury.io/rb/industrialist.svg)](https://badge.fury.io/rb/industrialist)
 [![Maintainability](https://api.codeclimate.com/v1/badges/96f6341cfb748a19f90c/maintainability)](https://codeclimate.com/github/entelo/industrialist/maintainability)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/96f6341cfb748a19f90c/test_coverage)](https://codeclimate.com/github/entelo/industrialist/test_coverage)
 [![CircleCI](https://circleci.com/gh/entelo/industrialist.svg?style=svg)](https://circleci.com/gh/entelo/industrialist)
