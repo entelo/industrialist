@@ -50,7 +50,7 @@ jobs:
             mkdir /tmp/test-results
 
             bundle exec rspec \
-            dddddd  --format progress \
+              --format progress \
               --format RspecJunitFormatter \
               --out /tmp/test-results/rspec.xml
 
