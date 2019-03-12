@@ -1,10 +1,10 @@
 require 'spec_helper'
 
-RSpec.describe Industrialist::FactoryRegistrar do
+RSpec.describe Industrialist::Manufacturable do
   before do
     class Automobile
-      include Industrialist::FactoryRegistrar
-      factory_name :AutomobileFactory
+      include Industrialist::Manufacturable
+      create_factory :AutomobileFactory
     end
   end
 
