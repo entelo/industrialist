@@ -14,7 +14,7 @@ At the heart of your typical Gang of Four factory method is a case statement:
 ```ruby
 class Sedan; end
 class Coupe; end
-class Convertible; end
+class Cabriolet; end
 
 class AutomobileFactory
   def self.build(automobile_type)
@@ -28,7 +28,7 @@ class AutomobileFactory
     when :coupe
       Coupe
     when :convertible
-      Convertible
+      Cabriolet
     end
   end
 end
@@ -41,13 +41,13 @@ The Ruby way to do this is with a Hash:
 ```ruby
 class Sedan; end
 class Coupe; end
-class Convertible; end
+class Cabriolet; end
 
 class AutomobileFactory
   AUTOMOBILE_KLASSES = {
     sedan: Sedan,
     coupe: Coupe,
-    convertible: Convertible
+    convertible: Cabriolet
   }.freeze
 
   def self.build(automobile_type)
