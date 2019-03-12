@@ -1,7 +1,7 @@
 require 'industrialist/factory'
 
 module Industrialist
-  module FactoryRegistrar
+  module Manufacturable
     def self.included(base)
       base.extend ClassMethods
     end
@@ -9,7 +9,7 @@ module Industrialist
     module ClassMethods
       @@factory = Industrialist::Factory.new
 
-      def factory_name(identifier)
+      def create_factory(identifier)
         Object.const_set(identifier, @@factory)
       end
 

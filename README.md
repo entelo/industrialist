@@ -62,12 +62,12 @@ But, both of these approaches require you to maintain your factory by hand. In o
 
 ## Usage
 
-Industrialist creates factories for you. Just include the FactoryRegistrar module in a base class and give the factory a name. Industrialist also allows children of the base class to register themselves with the factory by specifying their corresponding key. Like this:
+Industrialist creates factories for you. Just include the Manufacturable module in a base class and give the factory a name. Industrialist also allows children of the base class to register themselves with the factory by specifying their corresponding key. Like this:
 
 ```ruby
 class Automobile
-  include Industrialist::FactoryRegistrar
-  factory_name :AutomobileFactory
+  include Industrialist::Manufacturable
+  create_factory :AutomobileFactory
 end
 
 class Sedan < Automobile
@@ -78,7 +78,7 @@ class Coupe < Automobile
   corresponds_to :coupe
 end
 
-class Convertible < Automobile
+class Cabriolet < Automobile
   corresponds_to :convertible
 end
 
