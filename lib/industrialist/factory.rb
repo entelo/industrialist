@@ -7,12 +7,16 @@ module Industrialist
     end
 
     def register(key, klass)
-      registry[key&.to_sym] = klass
+      registry[factory_key(key)] = klass
     end
 
-    def build(event_type, *args)
-      klass = registry[event_type&.to_sym]
+    def build(key, *args)
+      klass = registry[factory_key(key)]
       klass&.new(*args)
+    end
+
+    def factory_key(key)
+      (key.respond_to?(:to_sym) && key.to_sym) || key
     end
   end
 end
