@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    industrialist (0.2.1)
+    industrialist (0.3.0)
 
 GEM
   remote: https://rubygems.org/

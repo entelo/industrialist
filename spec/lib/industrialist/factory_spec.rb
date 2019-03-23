@@ -6,7 +6,7 @@ RSpec.describe Industrialist::Factory do
   let(:key) { :key }
   let(:klass) do
     class TestDummy
-      def initialize(_args); end
+      def initialize(_args = nil); end
     end
 
     TestDummy
@@ -15,8 +15,24 @@ RSpec.describe Industrialist::Factory do
   before { factory.register(key, klass) }
 
   describe '#register' do
-    it 'stores the provided class under the provided key' do
-      expect(factory.registry[key]).to eq(klass)
+    context 'when the key can be symbolized' do
+      let(:key) { 'string_key' }
+
+      it 'allows building an instance of the class with the symbolized key' do
+        expect(factory.build(key.to_sym)).to be_a(klass)
+      end
+
+      it 'allows building an instance of the class with the provided key' do
+        expect(factory.build(key)).to be_a(klass)
+      end
+    end
+
+    context 'when the key is not a symbol or string' do
+      let(:key) { { hash: :key } }
+
+      it 'allows building an instance of the class with the provided key' do
+        expect(factory.build(key)).to be_a(klass)
+      end
     end
   end
 
