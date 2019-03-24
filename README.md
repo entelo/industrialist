@@ -183,8 +183,9 @@ def require_factory(class_type)
 end
 
 if %w(development test).include?(Rails.env)
+  require_factory('airplanes')
+  require_factory('trains')
   require_factory('automobiles')
-  require_factory('books')
 end
 ```
 
