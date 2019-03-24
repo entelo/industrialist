@@ -12,6 +12,10 @@ RSpec.describe Industrialist::Manufacturable do
     end
   end
 
+  before do
+    allow(Industrialist::WarningHelper).to receive(:warning).and_call_original
+  end
+
   describe '.included' do
     let(:manufacturable_class) do
       Class.new do
@@ -20,15 +24,11 @@ RSpec.describe Industrialist::Manufacturable do
       end
     end
 
-    before do
-      allow(described_class).to receive(:warn).and_call_original
-    end
-
     context 'when the factory is NOT defined on the base class' do
       before { manufacturable_class }
 
       it 'does NOT warn' do
-        expect(described_class).not_to have_received(:warn)
+        expect(Industrialist::WarningHelper).not_to have_received(:warning)
       end
     end
 
@@ -42,7 +42,7 @@ RSpec.describe Industrialist::Manufacturable do
       before { child_of_manufacturable_class }
 
       it 'warns' do
-        expect(described_class).to have_received(:warn)
+        expect(Industrialist::WarningHelper).to have_received(:warning)
       end
     end
   end
@@ -80,6 +80,32 @@ RSpec.describe Industrialist::Manufacturable do
       expect(AutomobileFactory.registry[:paperback]).to be_nil
       expect(BookFactory.registry[:sedan]).to be_nil
       expect(BookFactory.registry[:coupe]).to be_nil
+    end
+  end
+
+  describe '.manufacturable_default' do
+    before(:all) do
+      class Sedan < Automobile
+        manufacturable_default
+      end
+    end
+
+    it 'registers the class under the default key' do
+      expect(AutomobileFactory.registry[Industrialist::Factory::DEFAULT_KEY]).to equal(Sedan)
+    end
+
+    context 'when multiple defaults are registered with the same factory' do
+      let(:duplicative_default_class) do
+        class Coupe < Automobile
+          manufacturable_default
+        end
+      end
+
+      before { duplicative_default_class }
+
+      it 'warns' do
+        expect(Industrialist::WarningHelper).to have_received(:warning)
+      end
     end
   end
 end

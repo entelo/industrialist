@@ -3,12 +3,11 @@ require 'industrialist/warning_helper'
 
 module Industrialist
   module Manufacturable
-    extend WarningHelper
-
-    ALREADY_INCLUDED_WARNING_MESSAGE = 'warning: a factory is already defined on this class hierarchy'.freeze
+    ALREADY_INCLUDED_WARNING_MESSAGE = 'warning: overriding previously defined factory on this class hierarchy'.freeze
+    MULTIPLE_DEFAULT_WARNING_MESSAGE = 'warning: overriding a previously registered default class'.freeze
 
     def self.included(base)
-      warning(ALREADY_INCLUDED_WARNING_MESSAGE) if base.class_variable_defined?(:@@factory)
+      WarningHelper.warning(ALREADY_INCLUDED_WARNING_MESSAGE) if base.class_variable_defined?(:@@factory)
 
       base.extend ClassMethods
       base.class_variable_set(:@@factory, Industrialist::Factory.new)
@@ -21,6 +20,12 @@ module Industrialist
 
       def corresponds_to(key)
         factory.register(key, self)
+      end
+
+      def manufacturable_default
+        WarningHelper.warning(MULTIPLE_DEFAULT_WARNING_MESSAGE) if factory.registry[Industrialist::Factory::DEFAULT_KEY]
+
+        factory.register(Industrialist::Factory::DEFAULT_KEY, self)
       end
 
       def factory

@@ -34,6 +34,32 @@ RSpec.describe Industrialist::Factory do
         expect(factory.build(key)).to be_a(klass)
       end
     end
+
+    context 'when there is no class registered under the provided key' do
+      let(:unregistered_key) { :unregistered }
+
+      context 'and there is NO default defined' do
+        it 'returns nil' do
+          expect(factory.build(unregistered_key)).to be_nil
+        end
+      end
+
+      context 'and there is a default defined' do
+        let(:default_klass) do
+          class DefaultTestDummy
+            def initialize(_args = nil); end
+          end
+
+          DefaultTestDummy
+        end
+
+        before { factory.register(described_class::DEFAULT_KEY, default_klass) }
+
+        it 'returns the default' do
+          expect(factory.build(unregistered_key)).to be_a(default_klass)
+        end
+      end
+    end
   end
 
   describe '#build' do
