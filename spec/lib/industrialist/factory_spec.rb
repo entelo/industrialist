@@ -1,84 +1,48 @@
 require 'spec_helper'
 
 RSpec.describe Industrialist::Factory do
-  subject(:factory) { described_class.new }
+  subject(:factory) { Class.new { extend Industrialist::Factory } }
 
-  let(:key) { :key }
-  let(:klass) do
-    class TestDummy
-      def initialize(_args = nil); end
-    end
+  describe '#manufactures' do
+    subject(:manufactures) { factory.manufactures(klass) }
 
-    TestDummy
-  end
+    let(:klass) { String }
+    let(:industrialized_string) { :string }
 
-  before { factory.register(key, klass) }
+    before { manufactures }
 
-  describe '#register' do
-    context 'when the key can be symbolized' do
-      let(:key) { 'string_key' }
-
-      it 'allows building an instance of the class with the symbolized key' do
-        expect(factory.build(key.to_sym)).to be_a(klass)
-      end
-
-      it 'allows building an instance of the class with the provided key' do
-        expect(factory.build(key)).to be_a(klass)
-      end
-    end
-
-    context 'when the key is not a symbol or string' do
-      let(:key) { { hash: :key } }
-
-      it 'allows building an instance of the class with the provided key' do
-        expect(factory.build(key)).to be_a(klass)
-      end
-    end
-
-    context 'when there is no class registered under the provided key' do
-      let(:unregistered_key) { :unregistered }
-
-      context 'and there is NO default defined' do
-        it 'returns nil' do
-          expect(factory.build(unregistered_key)).to be_nil
-        end
-      end
-
-      context 'and there is a default defined' do
-        let(:default_klass) do
-          class DefaultTestDummy
-            def initialize(_args = nil); end
-          end
-
-          DefaultTestDummy
-        end
-
-        before { factory.register(described_class::DEFAULT_KEY, default_klass) }
-
-        it 'returns the default' do
-          expect(factory.build(unregistered_key)).to be_a(default_klass)
-        end
-      end
+    it 'sets a type on the factory' do
+      expect(factory.instance_variable_get(:@type)).to eq(industrialized_string)
     end
   end
 
   describe '#build' do
-    subject(:build) { factory.build(key, params) }
+    subject(:build) { factory.build(key, *args) }
 
-    let(:params) { 'params' }
+    let(:klass) { String }
+    let(:type) { :string }
+    let(:key) { :key }
+    let(:args) { [] }
 
     before do
-      allow(klass).to receive(:new).and_call_original
+      allow(Industrialist::Builder).to receive(:build).and_return(klass.new)
     end
 
-    it 'builds an instance of the requested class' do
-      build
-
-      expect(klass).to have_received(:new).with(params)
+    context 'when the type is nil' do
+      it 'returns nil' do
+        expect(build).to be_nil
+      end
     end
 
-    it 'returns an instance of the right class' do
-      expect(build).to be_a(klass)
+    context 'when the type is NOT nil' do
+      before do
+        factory.manufactures(klass)
+        build
+      end
+
+      it 'calls the builder to build the requested class' do
+        expect(Industrialist::Builder).to have_received(:build).with(type, key, *args)
+      end
     end
   end
 end

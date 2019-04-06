@@ -76,12 +76,11 @@ You can find a deeper dive into the motivations behind Industrialst [here](https
 
 ## Usage
 
-Industrialist creates factories for you. Just include the Manufacturable module in a base class and call `create_factory` with a name. Industrialist also allows children of the base class to register themselves with the factory by specifying their corresponding key.
+Industrialist creates factories for you. Just extend the Manufacturable module in a base class. This will register a manufacturable type based on the class name. Children of the base class can register themselves with the factory by specifying their corresponding key. To build an instance specify the manufacturable type and key.
 
 ```ruby
 class Automobile
-  include Industrialist::Manufacturable
-  create_factory :AutomobileFactory
+  extend Industrialist::Manufacturable
 end
 
 class Sedan < Automobile
@@ -92,7 +91,7 @@ class Coupe < Automobile
   corresponds_to :coupe
 end
 
-AutomobileFactory.build(:sedan)  # => #<Sedan:0x00007ff64d88ce58>
+Industrialist.build(:automobile, :sedan)  # => #<Sedan:0x00007ff64d88ce58>
 ```
 
 Manufacturable classes may also correspond to multiple keys:
@@ -107,29 +106,27 @@ end
 By default, Industrialist factories will return `nil` when built with an unregistered key. If you would instead prefer a default object, you can designate a `manufacturable_default`.
 
 ```ruby
-class Airplane
-  include Industrialist::Manufacturable
-  create_factory :AirplaneFactory
+class Plane
+  extend Industrialist::Manufacturable
 end
 
-class Biplane < Airplane
+class Biplane < Plane
   manufacturable_default
   corresponds_to :biplane
 end
 
-class FighterJet < Airplane
+class FighterJet < Plane
   corresponds_to :fighter
 end
 
-AirplaneFactory.build(:plane)  # => #<Biplane:0x00007ffcd4165610>
+Industrialist.build(:plane, :bomber)  # => #<Biplane:0x00007ffcd4165610>
 ```
 
-Finally, Industrialist will accept any Ruby object as a key, which is handy when you need to define more complex keys. For example, you could use a hash:
+Industrialist can accept any Ruby object as a key, which is handy when you need to define more complex keys. For example, you could use a hash:
 
 ```ruby
 class Train
-  include Industrialist::Manufacturable
-  create_factory :TrainFactory
+  extend Industrialist::Manufacturable
 end
 
 class SteamEngine < Train
@@ -153,10 +150,22 @@ class Sleeper < Train
 end
 
 def train_car(role, type)
-  TrainFactory.build(role => type)
+  Industrialist.build(:train, role => type)
 end
 
 train_car(:engine, :diesel)  # => #<Diesel:0x00007ff64f846640>
+```
+
+For convenience, you can also define your own factory classes.
+
+```ruby
+class AutomobileFactory
+  extend Industrialist::Factory
+
+  manufactures Automobile
+end
+
+AutomobileFactory.build(:sedan)  # => #<Sedan:0x00007ff64d88ce58>
 ```
 
 ## Installation
@@ -175,17 +184,13 @@ Or install it yourself as:
 
     $ gem install industrialist
 
-If you are using Industrialist with Rails, you'll need to preload your manufacturable objects in the development and test environments in an intializer, like this:
+If you are using Industrialist with Rails, you'll need to
 
 ```ruby
-def require_factory(class_type)
-  Dir[Rails.root.join('app', "#{class_type}", '**', '*.rb').to_s].each { |file| require file }
-end
-
-if %w(development test).include?(Rails.env)
-  require_factory('airplanes')
-  require_factory('trains')
-  require_factory('automobiles')
+Industrialist.config do |config|
+  config.manufacturable_paths << Rails.root.join('app', 'planes')
+  config.manufacturable_paths << Rails.root.join('app', 'trains')
+  config.manufacturable_paths << Rails.root.join('app', 'automobiles')
 end
 ```
 
