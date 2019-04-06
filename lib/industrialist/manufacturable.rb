@@ -1,36 +1,18 @@
-require 'industrialist/factory'
-require 'industrialist/warning_helper'
+require 'industrialist/registrar'
+require 'industrialist/type'
 
 module Industrialist
   module Manufacturable
-    ALREADY_INCLUDED_WARNING_MESSAGE = 'warning: overriding previously defined factory on this class hierarchy'.freeze
-    MULTIPLE_DEFAULT_WARNING_MESSAGE = 'warning: overriding a previously registered default class'.freeze
-
-    def self.included(base)
-      WarningHelper.warning(ALREADY_INCLUDED_WARNING_MESSAGE) if base.class_variable_defined?(:@@factory)
-
-      base.extend ClassMethods
-      base.class_variable_set(:@@factory, Industrialist::Factory.new)
+    def self.extended(base)
+      base.class_variable_set(:@@type, Type.industrialize(base))
     end
 
-    module ClassMethods
-      def create_factory(identifier)
-        Object.const_set(identifier, factory)
-      end
+    def corresponds_to(key)
+      Registrar.register(self.class_variable_get(:@@type), key, self)
+    end
 
-      def corresponds_to(key)
-        factory.register(key, self)
-      end
-
-      def manufacturable_default
-        WarningHelper.warning(MULTIPLE_DEFAULT_WARNING_MESSAGE) if factory.registry[Industrialist::Factory::DEFAULT_KEY]
-
-        factory.register(Industrialist::Factory::DEFAULT_KEY, self)
-      end
-
-      def factory
-        class_variable_get(:@@factory)
-      end
+    def manufacturable_default
+      Registrar.register_default(self.class_variable_get(:@@type), self)
     end
   end
 end
