@@ -10,17 +10,37 @@ RSpec.describe Industrialist::Registrar do
   describe '.register' do
     subject(:register) { described_class.register(type, key, klass) }
 
-    before { register }
+    context 'when the key can be symbolized' do
+      let(:key) { 'string_key' }
+      let(:symbolized_key) { :string_key }
 
-    it 'registers the class under the type and key' do
-      expect(described_class.value_for(type, key)).to be(klass)
+      before { register }
+
+      it 'registers the class under the type and symbolized key' do
+        expect(described_class.value_for(type, symbolized_key)).to be(klass)
+      end
+
+      it 'allows accessing the class under the type and  the original key' do
+        expect(described_class.value_for(type, key)).to be(klass)
+      end
+    end
+
+    context 'when the key cannot be symbolized' do
+      let(:key) { { key: :value } }
+
+      before { register }
+
+      it 'registers the class under the type and key' do
+        expect(described_class.value_for(type, key)).to be(klass)
+      end
     end
 
     context 'when the key is already defined for a different class' do
       before do
         allow(Industrialist::WarningHelper).to receive(:warning)
-
         described_class.register(type, key, class_double('different_klass', name: 'Different'))
+
+        register
       end
 
       it 'warns' do
