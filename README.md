@@ -5,17 +5,28 @@
 
 # Industrialist
 
-Industrialist manufactures factories that build self-registered classes.
+Industrialist makes your factory code easy to extend and resilient to change.
 
-## Background
+It was inspired by the Gang-of-Four [factory method](https://en.wikipedia.org/wiki/Factory_method_pattern) and [abstract factory](https://en.wikipedia.org/wiki/Abstract_factory_pattern) patterns.
 
-At the heart of your typical Gang of Four factory method is a case statement:
+Factory code typically involves a case statement. If you are switching on a key to choose a class to build, you have a factory:
 
 ```ruby
-class Sedan; end
-class Coupe; end
-class Cabriolet; end
+def automobile(automobile_type)
+  case automobile_type
+  when :sedan
+    Sedan.new
+  when :coupe
+    Coupe.new
+  when :convertible
+    Cabriolet.new
+  end
+end
+```
 
+This code often lives inside a class with other responsibilities. By applying the [Single Responsibility Principle](https://en.wikipedia.org/wiki/Single_responsibility_principle), you can extract it into a factory class:
+
+```ruby
 class AutomobileFactory
   def self.build(automobile_type)
     automobile_klass(automobile_type)&.new
@@ -33,16 +44,12 @@ class AutomobileFactory
   end
 end
 
-AutomobileFactory.build(:sedan)
+AutomobileFactory.build(:sedan)  # => #<Sedan:0x00007ff64d88ce58>
 ```
 
 Another way to do this is with a hash:
 
 ```ruby
-class Sedan; end
-class Coupe; end
-class Cabriolet; end
-
 class AutomobileFactory
   AUTOMOBILE_KLASSES = {
     sedan: Sedan,
@@ -55,10 +62,10 @@ class AutomobileFactory
   end
 end
 
-AutomobileFactory.build(:coupe)
+AutomobileFactory.build(:coupe)  # => #<Coupe:0x00007ff64b6a372>
 ```
 
-But, both of these approaches require you to maintain your factory by hand. In order to extend these factories, you must modify them, which violates the Open/Closed Principle.
+But, both of these approaches require you to maintain your factory by hand. In order to extend these factories, you must modify them, which violates the [Open/Closed Principle](https://en.wikipedia.org/wiki/Open%E2%80%93closed_principle).
 
 The Ruby way to do this is with conventions and metaprogramming:
 
@@ -76,13 +83,26 @@ You can find a deeper dive into the motivations behind Industrialst [here](https
 
 ## Usage
 
-Industrialist creates factories for you. Just extend the Manufacturable module in a base class. This will register a manufacturable type based on the class name. Children of the base class can register themselves with the factory by specifying their corresponding key. To build an instance specify the manufacturable type and key.
+Industrialist manages a factory of factories, so you don't have to. Setting it up is easy. When you create a factory class, extend `Industrialist::Factory`, and tell Industrialist the base class of the classes your factory will manufacture:
+
+```ruby
+class AutomobileFactory
+  extend Industrialist::Factory
+  manufactures Automobile
+end
+```
+
+Next, tell Industrialist that the base class is maufacturable by extending `Industrialist::Manufacturable`:
 
 ```ruby
 class Automobile
   extend Industrialist::Manufacturable
 end
+```
 
+And, finally, tell each of your subclasses what key to register themselves under:
+
+```ruby
 class Sedan < Automobile
   corresponds_to :sedan
 end
@@ -90,8 +110,12 @@ end
 class Coupe < Automobile
   corresponds_to :coupe
 end
+```
 
-Industrialist.build(:automobile, :sedan)  # => #<Sedan:0x00007ff64d88ce58>
+As the subclasses are loaded by Ruby, they register themselves with the appropriate factory so that you can do this:
+
+```ruby
+AutomobileFactory.build(:sedan)  # => #<Sedan:0x00007ff64d88ce58>
 ```
 
 Manufacturable classes may also correspond to multiple keys:
@@ -106,6 +130,11 @@ end
 By default, Industrialist factories will return `nil` when built with an unregistered key. If you would instead prefer a default object, you can designate a `manufacturable_default`.
 
 ```ruby
+class PlaneFactory
+  extend Industrialist::Factory
+  manufactures Plane
+end
+
 class Plane
   extend Industrialist::Manufacturable
 end
@@ -119,12 +148,17 @@ class FighterJet < Plane
   corresponds_to :fighter
 end
 
-Industrialist.build(:plane, :bomber)  # => #<Biplane:0x00007ffcd4165610>
+PlaneFactory.build(:bomber)  # => #<Biplane:0x00007ffcd4165610>
 ```
 
 Industrialist can accept any Ruby object as a key, which is handy when you need to define more complex keys. For example, you could use a hash:
 
 ```ruby
+class TrainFactory
+  extend Industrialist::Factory
+  manufactures Train
+end
+
 class Train
   extend Industrialist::Manufacturable
 end
@@ -149,23 +183,15 @@ class Sleeper < Train
   corresponds_to passenger: :sleeper
 end
 
-def train_car(role, type)
-  Industrialist.build(:train, role => type)
-end
-
-train_car(:engine, :diesel)  # => #<Diesel:0x00007ff64f846640>
+TrainFactory.build(engine: :diesel)  # => #<Diesel:0x00007ff64f846640>
 ```
 
-For convenience, you can also define your own factory classes.
+For convenience, you can choose not to define your own factories. Instead, just use Industrialist directly:
 
 ```ruby
-class AutomobileFactory
-  extend Industrialist::Factory
-
-  manufactures Automobile
-end
-
-AutomobileFactory.build(:sedan)  # => #<Sedan:0x00007ff64d88ce58>
+Industrialist.build(:plane, :bomber)          # => #<Biplane:0x00007ffcd4165610>
+Industrialist.build(:train, engine: :diesel)  # => #<Diesel:0x00007ff64f846640>
+Industrialist.build(:autombile, :sedan)       # => #<Sedan:0x00007ff64d88ce58>
 ```
 
 ## Installation
