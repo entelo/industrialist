@@ -9,7 +9,7 @@ Industrialist makes your factory code easy to extend and resilient to change.
 
 It was inspired by the Gang-of-Four [factory method](https://en.wikipedia.org/wiki/Factory_method_pattern) and [abstract factory](https://en.wikipedia.org/wiki/Abstract_factory_pattern) patterns.
 
-Factory code typically involves a case statement. If you are switching on a key to choose a class to build, you have a factory:
+Factory code often involves a case statement. If you are switching on a key in order to choose which class to build, you have a factory:
 
 ```ruby
 def automobile(automobile_type)
