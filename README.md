@@ -9,7 +9,7 @@ Industrialist makes your factory code easy to extend and resilient to change.
 
 It was inspired by the Gang-of-Four [factory method](https://en.wikipedia.org/wiki/Factory_method_pattern) and [abstract factory](https://en.wikipedia.org/wiki/Abstract_factory_pattern) patterns.
 
-Factory code typically involves a case statement. If you are switching on a key to choose a class to build, you have a factory:
+Factory code often involves a case statement. If you are switching on a key in order to choose which class to build, you have a factory:
 
 ```ruby
 def automobile(automobile_type)
@@ -77,7 +77,7 @@ class AutomobileFactory
 end
 ```
 
-But, factories of this type also have issues. If your keys are not easily mapped to a convention, you won't be able to use this type of factory. For example, the `Cabriolet` class above corresponds to the key `:convertible`.
+But, factories of this type also have issues. If your convention changes, you'll have to edit the factory, which violates teh Open/Closed principle. Or, if your keys are not easily mapped to a convention, you won't be able to use this type of factory. For example, the `Cabriolet` class above corresponds to the key `:convertible`. 
 
 You can find a deeper dive into the motivations behind Industrialst [here](https://engineering.entelo.com/extension-without-modification-cb0f9cfb64a3).
 
