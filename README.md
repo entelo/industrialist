@@ -77,7 +77,7 @@ class AutomobileFactory
 end
 ```
 
-But, factories of this type also have issues. If your keys are not easily mapped to a convention, you won't be able to use this type of factory. For example, the `Cabriolet` class above corresponds to the key `:convertible`.
+But, factories of this type also have issues. If your convention changes, you'll have to edit the factory, which violates teh Open/Closed principle. Or, if your keys are not easily mapped to a convention, you won't be able to use this type of factory. For example, the `Cabriolet` class above corresponds to the key `:convertible`. 
 
 You can find a deeper dive into the motivations behind Industrialst [here](https://engineering.entelo.com/extension-without-modification-cb0f9cfb64a3).
 
